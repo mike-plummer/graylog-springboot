@@ -3,3 +3,20 @@ info:
     description: ${project.description}
     name: ${project.name}
     version: ${project.version}
+
+graylog:
+  username: "admin"
+  password: "admin"
+  version: ${graylogVersion}
+  configFile: ${graylogConfigFile}
+
+spring:
+  data:
+    elasticsearch:
+      clusterName: "graylog"
+      properties:
+        node:
+          local: false
+          data: true
+        http:
+          enabled: true

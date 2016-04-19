@@ -1,7 +1,4 @@
 buildscript {
-	ext {
-		springBootVersion = '1.3.3.RELEASE'
-	}
 	repositories {
 		mavenCentral()
 	}
@@ -10,14 +7,11 @@ buildscript {
 	}
 }
 
-project.description="Example of using GrayLog with Spring Boot"
-project.version="0.0.1"
-
 apply plugin: 'java'
 apply plugin: 'spring-boot'
 
 processResources {
-	expand(project.properties)
+	expand(project.properties + properties)
 }
 
 jar {
@@ -32,14 +26,58 @@ repositories {
 }
 
 dependencies {
-	compile('org.projectlombok:lombok:1.16.6')
-	compile('javax.inject:javax.inject:1')
-	compile('org.springframework.boot:spring-boot-starter-web')
-	compile('io.springfox:springfox-swagger-ui:2.4.0')
-	compile('io.springfox:springfox-swagger2:2.4.0')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	compile("org.projectlombok:lombok:${lombokVersion}")
+	compile("javax.inject:javax.inject:${javaxInjectVersion}")
+	compile("org.springframework.boot:spring-boot-starter-web")
+	compile("io.springfox:springfox-swagger-ui:${springfoxVersion}")
+	compile("io.springfox:springfox-swagger2:${springfoxVersion}")
+
+	compile('org.springframework.data:spring-data-elasticsearch:2.0.1.RELEASE')
+	compile('org.elasticsearch:elasticsearch:2.2.0')
+
+	compile("de.flapdoodle.embed:de.flapdoodle.embed.mongo:${embeddedMongoVersion}")
+
+	compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
+
+	// Need this to get the Rest API classes - sure wish it was in a separate Jar from the other Graylog code!
+	compile("org.graylog2:graylog2-server:${graylogVersion}") {
+		transitive = false
+	}
+
+	testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
 task wrapper(type: Wrapper) {
 	gradleVersion = '2.12'
 }
+
+task prepareGraylog(dependsOn: 'extractGraylog') {
+}
+
+task downloadGraylog() {
+	def archive = new File("graylog/graylog-${graylogVersion}.tgz")
+	if (!archive.exists()) {
+		println "Downloading Graylog version ${graylogVersion}..."
+		new URL("http://packages.graylog2.org/releases/graylog/graylog-${graylogVersion}.tgz")
+				.withInputStream{ i -> archive.withOutputStream{ it << i }}
+	} else {
+		println "Graylog archive already exists, skipping..."
+	}
+}
+
+task extractGraylog(type: Copy, dependsOn: 'downloadGraylog') {
+	def archive = new File("graylog/graylog-${graylogVersion}.tgz")
+	def destinationDir = file("graylog/graylog-${graylogVersion}")
+	def outputDir = file("graylog")
+
+	if (!destinationDir.exists()) {
+		println "Extracting graylog archive..."
+		from tarTree(archive)
+		into outputDir
+		println "Graylog extracted."
+	} else {
+		println "Graylog archive already extracted, skipping..."
+	}
+}
+
+bootRun.dependsOn prepareGraylog
