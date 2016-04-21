@@ -1,5 +1,6 @@
-package com.objectpartners.plummer.stockmarket.config;
+package com.objectpartners.plummer.stockmarket.graylog;
 
+import com.objectpartners.plummer.stockmarket.data.MongoInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -20,12 +21,6 @@ public class GraylogInstance implements DisposableBean {
     // Hint to Spring that we need to run this config AFTER Mongo is started
     @Inject
     private MongoInstance mongo;
-
-    @Value("${graylog.username}")
-    private String graylogUsername;
-
-    @Value("${graylog.password}")
-    private String graylogPassword;
 
     @Value("${graylog.configFile}")
     private String graylogConfigFile;

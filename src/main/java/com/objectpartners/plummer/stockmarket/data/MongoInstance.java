@@ -1,4 +1,4 @@
-package com.objectpartners.plummer.stockmarket.config;
+package com.objectpartners.plummer.stockmarket.data;
 
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
