@@ -1,6 +1,9 @@
 buildscript {
 	repositories {
 		mavenCentral()
+		maven {
+			url "https://repo.spring.io/milestone/"
+		}
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
@@ -23,17 +26,18 @@ targetCompatibility = 1.8
 
 repositories {
 	mavenCentral()
+	maven {
+		url "https://repo.spring.io/milestone/"
+	}
 }
 
 dependencies {
 	compile("org.projectlombok:lombok:${lombokVersion}")
 	compile("javax.inject:javax.inject:${javaxInjectVersion}")
 	compile("org.springframework.boot:spring-boot-starter-web")
+	compile("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 	compile("io.springfox:springfox-swagger-ui:${springfoxVersion}")
 	compile("io.springfox:springfox-swagger2:${springfoxVersion}")
-
-	compile('org.springframework.data:spring-data-elasticsearch:2.0.1.RELEASE')
-	compile('org.elasticsearch:elasticsearch:2.2.0')
 
 	compile("de.flapdoodle.embed:de.flapdoodle.embed.mongo:${embeddedMongoVersion}")
 

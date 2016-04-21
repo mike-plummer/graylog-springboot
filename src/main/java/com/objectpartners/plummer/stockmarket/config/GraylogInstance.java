@@ -1,26 +1,25 @@
 package com.objectpartners.plummer.stockmarket.config;
 
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import org.elasticsearch.common.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 
 @Named
 @Singleton
-public class GraylogInstance {
+public class GraylogInstance implements DisposableBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraylogInstance.class);
 
     // Hint to Spring that we need to run this config AFTER Mongo is started
     @Inject
-    private MongodExecutable mongo;
+    private MongoInstance mongo;
 
     @Value("${graylog.username}")
     private String graylogUsername;
@@ -45,8 +44,8 @@ public class GraylogInstance {
         LOGGER.info("Graylog start process completed with status {}", result);
     }
 
-    @PreDestroy
-    public void cleanup() throws IOException, InterruptedException {
+    @Override
+    public void destroy() throws Exception {
         Process startProcess = Runtime.getRuntime().exec(
                 "./graylog/graylog-"+graylogVersion+"/bin/graylogctl stop");
 
