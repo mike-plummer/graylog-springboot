@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -36,6 +37,9 @@ public class GelfMessage {
 
     @JsonUnwrapped
     public Map<String, String> getGelfAdditionalProperties() {
+        if (additionalProperties == null) {
+            return Collections.emptyMap();
+        }
         return additionalProperties.entrySet().stream()
                 .collect(Collectors.toMap(entry -> {
                     if (entry.getKey().startsWith("_")) {

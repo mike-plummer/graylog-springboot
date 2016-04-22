@@ -1,16 +1,22 @@
 package com.objectpartners.plummer.stockmarket.graylog;
 
 import com.objectpartners.plummer.stockmarket.data.MongoInstance;
+import org.graylog2.inputs.gelf.http.GELFHttpInput;
+import org.graylog2.inputs.gelf.tcp.GELFTCPInput;
+import org.graylog2.rest.models.system.inputs.requests.InputCreateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Named
 @Singleton
@@ -21,6 +27,9 @@ public class GraylogInstance implements DisposableBean {
     // Hint to Spring that we need to run this config AFTER Mongo is started
     @Inject
     private MongoInstance mongo;
+
+    @Inject
+    private GraylogRestInterface graylogRestInterface;
 
     @Value("${graylog.configFile}")
     private String graylogConfigFile;
@@ -37,6 +46,40 @@ public class GraylogInstance implements DisposableBean {
 
         int result = process.waitFor();
         LOGGER.info("Graylog start process completed with status {}", result);
+    }
+
+    @Scheduled(initialDelay = 5000L, fixedDelay = Long.MAX_VALUE)
+    public void setupTcpInput() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("use_null_delimiter", true);
+        properties.put("bind_address", "0.0.0.0");
+        properties.put("port", 12201);
+
+        InputCreateRequest request = InputCreateRequest.create(
+                "SpringBoot GELP TCP",
+                GELFTCPInput.class.getName(),
+                true,
+                properties,
+                null);
+
+        graylogRestInterface.createInput(request);
+    }
+
+    @Scheduled(initialDelay = 10000L, fixedDelay = Long.MAX_VALUE)
+    public void setupHttpInput() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("use_null_delimiter", true);
+        properties.put("bind_address", "0.0.0.0");
+        properties.put("port", 12202);
+
+        InputCreateRequest request = InputCreateRequest.create(
+                "SpringBoot GELP HTTP",
+                GELFHttpInput.class.getName(),
+                true,
+                properties,
+                null);
+
+        graylogRestInterface.createInput(request);
     }
 
     @Override

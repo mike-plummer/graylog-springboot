@@ -2,4 +2,7 @@
 /.idea
 /build
 /graylog/graylog-*
-/data
+/data/graylog
+/data/mongodb/data
+/data/mongodb/extracted
+/data/mongodb/osx

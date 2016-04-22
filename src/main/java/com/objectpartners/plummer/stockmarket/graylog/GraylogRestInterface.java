@@ -2,7 +2,6 @@ package com.objectpartners.plummer.stockmarket.graylog;
 
 import com.google.common.collect.Lists;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.graylog2.inputs.gelf.http.GELFHttpInput;
 import org.graylog2.rest.models.system.inputs.requests.InputCreateRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -15,8 +14,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Named;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 @Named
 public class GraylogRestInterface {
@@ -49,24 +46,12 @@ public class GraylogRestInterface {
     }
 
     public void createInput(InputCreateRequest request) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("use_null_delimiter", true);
-        properties.put("bind_address", "0.0.0.0");
-        properties.put("port", 12202);
-
-        InputCreateRequest request2 = InputCreateRequest.create(
-                "SpringBoot GELP HTTP",
-                GELFHttpInput.class.getName(),
-                true,
-                properties,
-                null);
-
         HttpEntity<InputCreateRequest> entity = new HttpEntity<>(request);
-        restTemplate.postForEntity(uriBuilder.path("system/inputs").toUriString(), entity, null);
+        restTemplate.postForEntity(uriBuilder.cloneBuilder().path("system/inputs").toUriString(), entity, null);
     }
 
     public void logEvent(GelfMessage message) {
         HttpEntity<GelfMessage> entity = new HttpEntity<>(message);
-        restTemplate.postForEntity(uriBuilder.port(12202).path("system/inputs").toUriString(), entity, null);
+        restTemplate.postForEntity(uriBuilder.cloneBuilder().port(12202).path("gelf").toUriString(), entity, null);
     }
 }
