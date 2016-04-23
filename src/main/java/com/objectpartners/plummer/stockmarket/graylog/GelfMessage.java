@@ -51,7 +51,7 @@ public class GelfMessage {
 
     public void setTimestamp(Long millisSinceEpoch) {
         Long seconds = TimeUnit.MILLISECONDS.toSeconds(millisSinceEpoch);
-        Long millis = millisSinceEpoch - seconds;
-        timestamp =  seconds + millis / 1000.0;
+        Double millis = (millisSinceEpoch - seconds * 1000) / 1000.0;
+        timestamp = seconds + millis;
     }
 }

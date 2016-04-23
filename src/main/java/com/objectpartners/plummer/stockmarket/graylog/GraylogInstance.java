@@ -48,15 +48,19 @@ public class GraylogInstance implements DisposableBean {
         LOGGER.info("Graylog start process completed with status {}", result);
     }
 
-    @Scheduled(initialDelay = 5000L, fixedDelay = Long.MAX_VALUE)
+    @Scheduled(initialDelay = 10000L, fixedDelay = Long.MAX_VALUE)
     public void setupTcpInput() {
+        String inputName = "SpringBoot GELF TCP";
+        if (graylogRestInterface.inputExists(inputName)) {
+            return;
+        }
         Map<String, Object> properties = new HashMap<>();
         properties.put("use_null_delimiter", true);
         properties.put("bind_address", "0.0.0.0");
         properties.put("port", 12201);
 
         InputCreateRequest request = InputCreateRequest.create(
-                "SpringBoot GELP TCP",
+                inputName,
                 GELFTCPInput.class.getName(),
                 true,
                 properties,
@@ -67,13 +71,17 @@ public class GraylogInstance implements DisposableBean {
 
     @Scheduled(initialDelay = 10000L, fixedDelay = Long.MAX_VALUE)
     public void setupHttpInput() {
+        String inputName = "SpringBoot GELF HTTP";
+        if (graylogRestInterface.inputExists(inputName)) {
+            return;
+        }
         Map<String, Object> properties = new HashMap<>();
         properties.put("use_null_delimiter", true);
         properties.put("bind_address", "0.0.0.0");
         properties.put("port", 12202);
 
         InputCreateRequest request = InputCreateRequest.create(
-                "SpringBoot GELP HTTP",
+                inputName,
                 GELFHttpInput.class.getName(),
                 true,
                 properties,

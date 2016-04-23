@@ -48,6 +48,8 @@ dependencies {
 		transitive = false
 	}
 
+	compile("com.fasterxml.jackson.datatype:jackson-datatype-joda");
+
 	testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 

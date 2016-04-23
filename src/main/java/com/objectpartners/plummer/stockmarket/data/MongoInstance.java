@@ -55,6 +55,7 @@ public class MongoInstance implements DisposableBean {
                 .version(Version.Main.PRODUCTION)
                 .cmdOptions(new MongoCmdOptionsBuilder()
                         .useNoJournal(false)
+                        .useSmallFiles(true)
                         .build())
                 .net(new Net(MongoProperties.DEFAULT_PORT, Network.localhostIsIPv6()))
                 .replication(replication)

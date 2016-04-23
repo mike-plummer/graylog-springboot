@@ -45,8 +45,7 @@ public class QuoteJob {
         GelfMessage message = new GelfMessage();
         message.setHost(InetAddress.getLocalHost().getHostName());
         message.setTimestamp(System.currentTimeMillis());
-        message.setLevel(4);
-        message.setShortMessage(String.format("Quote %s@%f", quote.getSymbol(), quote.getPrice()));
+        message.setShortMessage(String.format("Quote %s@%2.2f", quote.getSymbol(), quote.getPrice()));
         message.setFullMessage(mapper.writeValueAsString(quote));
         graylog.logEvent(message);
     }

@@ -3,12 +3,9 @@ package com.objectpartners.plummer.stockmarket.graylog;
 import com.google.common.collect.Lists;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.graylog2.rest.models.system.inputs.requests.InputCreateRequest;
+import org.graylog2.rest.models.system.inputs.responses.InputsList;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.InterceptingClientHttpRequestFactory;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,28 +27,36 @@ public class GraylogRestInterface {
     private final RestTemplate restTemplate;
 
     public GraylogRestInterface() {
+        restTemplate = new RestTemplate();
+    }
+
+    public void createInput(InputCreateRequest request) {
+        HttpEntity<InputCreateRequest> entity = new HttpEntity<>(request, buildHeaders());
+        restTemplate.postForEntity(uriBuilder.cloneBuilder().path("system/inputs").toUriString(), entity, null);
+    }
+
+    public boolean inputExists(String inputName) {
+        HttpEntity<InputCreateRequest> entity = new HttpEntity<>(null, buildHeaders());
+        ResponseEntity<InputsList> response = restTemplate.exchange(uriBuilder.cloneBuilder().path("system/inputs").toUriString(), HttpMethod.GET, entity, InputsList.class);
+        InputsList inputs = response.getBody();
+        return inputs.inputs().stream().anyMatch(input -> inputName.equals(input.name()));
+    }
+
+    public void logEvent(GelfMessage message) {
+        HttpEntity<GelfMessage> entity = new HttpEntity<>(message, buildHeaders());
+        restTemplate.postForEntity(uriBuilder.cloneBuilder().port(12202).path("gelf").toUriString(), entity, null);
+    }
+
+    private HttpHeaders buildHeaders() {
         String auth = graylogUsername + ":" + graylogPassword;
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.US_ASCII) );
         final String authHeader = "Basic " + new String( encodedAuth );
 
-        ClientHttpRequestInterceptor interceptor = (request, body, execution) -> {
-            request.getHeaders().add(HttpHeaders.AUTHORIZATION, authHeader );
-            request.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-            request.getHeaders().setAccept(Lists.newArrayList(MediaType.APPLICATION_JSON));
-            return execution.execute(request, body);
-        };
-
-        restTemplate = new RestTemplate();
-        restTemplate.setRequestFactory(new InterceptingClientHttpRequestFactory(restTemplate.getRequestFactory(), Lists.newArrayList(interceptor)));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.AUTHORIZATION, authHeader );
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Lists.newArrayList(MediaType.APPLICATION_JSON));
+        return headers;
     }
 
-    public void createInput(InputCreateRequest request) {
-        HttpEntity<InputCreateRequest> entity = new HttpEntity<>(request);
-        restTemplate.postForEntity(uriBuilder.cloneBuilder().path("system/inputs").toUriString(), entity, null);
-    }
-
-    public void logEvent(GelfMessage message) {
-        HttpEntity<GelfMessage> entity = new HttpEntity<>(message);
-        restTemplate.postForEntity(uriBuilder.cloneBuilder().port(12202).path("gelf").toUriString(), entity, null);
-    }
 }
