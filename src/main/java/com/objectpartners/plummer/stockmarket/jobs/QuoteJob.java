@@ -30,14 +30,14 @@ public class QuoteJob {
     @Inject
     protected QuoteService quoteService;
 
-    @Scheduled(initialDelay = 15000L, fixedDelay = 1000L)
-    public void quoteViaTcpGelf() {
+    @Scheduled(initialDelay = 30000L, fixedDelay = 1000L)
+    public void quoteViaUdpGelf() {
         String symbol = RandomStringUtils.randomAlphabetic(3).toUpperCase();
         QuoteResource quote = quoteService.quote(symbol);
         LOGGER.info("Generated quote - {}@{}", quote.getSymbol(), quote.getPrice());
     }
 
-    @Scheduled(initialDelay = 15000L, fixedDelay = 1000L)
+    @Scheduled(initialDelay = 30000L, fixedDelay = 1000L)
     public void quoteViaHttpGelf() throws UnknownHostException, JsonProcessingException {
         String symbol = RandomStringUtils.randomAlphabetic(3).toUpperCase();
         QuoteResource quote = quoteService.quote(symbol);
