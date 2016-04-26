@@ -173,6 +173,45 @@ public class GraylogInstance implements DisposableBean {
         );
         graylogRestInterface.createWidget(dashboardId, widgetRequest);
         LOGGER.info("Symbol widget created.");
+
+        widgetRequest = AddWidgetRequest.create(
+                "Generated Quote Count",
+                "SEARCH_RESULT_COUNT",
+                10,
+                new HashMap<String, Object>(){{
+                    put("timerange", new HashMap<String, Object>() {{
+                        put("type", "relative");
+                        put("range", 300);
+                    }});
+                    put("lower_is_better", false);
+                    put("trend", false);
+                    put("query", "_exists_:symbol");
+                }}
+        );
+        graylogRestInterface.createWidget(dashboardId, widgetRequest);
+        LOGGER.info("Quote count widget created.");
+
+        widgetRequest = AddWidgetRequest.create(
+                "Quote Generation Time (us)",
+                "FIELD_CHART",
+                10,
+                new HashMap<String, Object>(){{
+                    put("timerange", new HashMap<String, Object>() {{
+                        put("type", "relative");
+                        put("range", 300);
+                    }});
+                    put("valuetype", "mean");
+                    put("renderer", "line");
+                    put("interpolation", "linear");
+                    put("field", "elapsed_time");
+                    put("interval", "minute");
+                    put("rangeType", "relative");
+                    put("relative", 300);
+                    put("query", "_exists_:elapsed_time");
+                }}
+        );
+        graylogRestInterface.createWidget(dashboardId, widgetRequest);
+        LOGGER.info("Quote generation time widget created.");
     }
 
     @Override
