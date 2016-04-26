@@ -50,6 +50,8 @@ dependencies {
 
 	compile("com.fasterxml.jackson.datatype:jackson-datatype-joda");
 
+	runtime("com.github.pukkaone:logback-gelf:${logbackGelfVersion}")
+
 	testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
