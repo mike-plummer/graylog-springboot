@@ -1,14 +1,13 @@
 info:
   build:
-    description: ${project.description}
-    name: ${project.name}
-    version: ${project.version}
+    description: "@project.description@"
+    name: "@project.name@"
+    version: "@project.version@"
 
 graylog:
   username: "admin"
   password: "admin"
-  version: ${graylogVersion}
-  configFile: ${graylogConfigFile}
+  configFile: "./graylog/graylog.conf"
 
 spring:
   data:

@@ -1,8 +1,7 @@
 /.gradle
 /.idea
+*.iml
 /build
-/graylog/graylog-*
-/data/graylog
-/data/mongodb/data
-/data/mongodb/extracted
-/data/mongodb/osx
+/data
+/sigar-libs/*
+/target

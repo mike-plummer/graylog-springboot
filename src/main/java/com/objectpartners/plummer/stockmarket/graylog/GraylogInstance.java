@@ -1,6 +1,11 @@
 package com.objectpartners.plummer.stockmarket.graylog;
 
 import com.objectpartners.plummer.stockmarket.data.MongoInstance;
+import io.airlift.airline.Cli;
+import org.graylog2.bootstrap.CliCommand;
+import org.graylog2.bootstrap.CliCommandsProvider;
+import org.graylog2.bootstrap.commands.Help;
+import org.graylog2.bootstrap.commands.ShowVersion;
 import org.graylog2.inputs.gelf.http.GELFHttpInput;
 import org.graylog2.inputs.gelf.udp.GELFUDPInput;
 import org.graylog2.rest.models.dashboards.requests.AddWidgetRequest;
@@ -9,7 +14,6 @@ import org.graylog2.rest.models.system.inputs.extractors.requests.CreateExtracto
 import org.graylog2.rest.models.system.inputs.requests.InputCreateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 
@@ -18,14 +22,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Named
 @Singleton
-public class GraylogInstance implements DisposableBean {
+public class GraylogInstance {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraylogInstance.class);
 
@@ -39,21 +40,30 @@ public class GraylogInstance implements DisposableBean {
     @Value("${graylog.configFile}")
     private String graylogConfigFile;
 
-    @Value("${graylog.version}")
-    private String graylogVersion;
-
     @Inject
     protected TaskScheduler scheduler;
 
     @PostConstruct
     public void init() throws IOException, InterruptedException {
-        ProcessBuilder builder = new ProcessBuilder();
-        builder.command("./graylog/graylog-"+graylogVersion+"/bin/graylogctl", "start");
-        builder.environment().put("GRAYLOG_CONF", graylogConfigFile);
-        Process process = builder.start();
+        System.setProperty("java.library.path", "./sigar-libs");
+        final Cli.CliBuilder<CliCommand> builder = Cli.<CliCommand>builder("graylog")
+                .withDefaultCommand(Help.class)
+                .withCommands(Help.class, ShowVersion.class);
 
-        int result = process.waitFor();
-        LOGGER.info("Graylog start process completed with status {}", result);
+        ServiceLoader commandsProviders = ServiceLoader.load(CliCommandsProvider.class);
+
+        for (Object commandsProvider : commandsProviders) {
+            CliCommandsProvider command = (CliCommandsProvider) commandsProvider;
+            command.addTopLevelCommandsOrGroups(builder);
+        }
+
+        final Cli<CliCommand> cli = builder.build();
+        final Runnable command = cli.parse("server", "-f", graylogConfigFile);
+        final Thread graylogThread = new Thread(command);
+
+        graylogThread.start();
+
+        LOGGER.info("Graylog started");
 
         configureGraylog();
     }
@@ -69,7 +79,6 @@ public class GraylogInstance implements DisposableBean {
         } catch (Exception e) {
             LOGGER.warn("Graylog rest interface not ready yet, rescheduling...");
             delay(this::configureGraylog, 1);
-            return;
         }
     }
 
@@ -212,14 +221,5 @@ public class GraylogInstance implements DisposableBean {
         );
         graylogRestInterface.createWidget(dashboardId, widgetRequest);
         LOGGER.info("Quote generation time widget created.");
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        Process startProcess = Runtime.getRuntime().exec(
-                "./graylog/graylog-"+graylogVersion+"/bin/graylogctl stop");
-
-        int result = startProcess.waitFor();
-        LOGGER.info("Graylog stop process completed with status {}", result);
     }
 }
