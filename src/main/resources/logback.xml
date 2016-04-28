@@ -20,6 +20,8 @@
         </encoder>
     </appender>
 
+    <logger name="org.springframework.scheduling.support.TaskUtils$LoggingErrorHandler" level="OFF" />
+
     <logger name="com.objectpartners.plummer.stockmarket" level="INFO" additivity="false">
         <appender-ref ref="GRAYLOG" />
         <appender-ref ref="STDOUT" />

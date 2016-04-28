@@ -7,6 +7,8 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,15 @@ public class GelfMessage {
 
     @JsonIgnore
     private Map<String, Object> additionalProperties;
+
+    public GelfMessage() {
+        try {
+            setHost(InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            setHost("localhost");
+        }
+        setTimestamp(System.currentTimeMillis());
+    }
 
     public Map<String, Object> getAdditionalProperties() {
         if (additionalProperties == null) {
