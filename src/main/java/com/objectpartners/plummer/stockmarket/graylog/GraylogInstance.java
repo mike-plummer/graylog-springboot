@@ -221,5 +221,22 @@ public class GraylogInstance {
         );
         graylogRestInterface.createWidget(dashboardId, widgetRequest);
         LOGGER.info("Quote generation time widget created.");
+
+        widgetRequest = AddWidgetRequest.create(
+                "Error Count",
+                "SEARCH_RESULT_COUNT",
+                10,
+                new HashMap<String, Object>(){{
+                    put("timerange", new HashMap<String, Object>() {{
+                        put("type", "relative");
+                        put("range", 300);
+                    }});
+                    put("lower_is_better", false);
+                    put("trend", false);
+                    put("query", "_exists_:stacktrace");
+                }}
+        );
+        graylogRestInterface.createWidget(dashboardId, widgetRequest);
+        LOGGER.info("Error count widget created.");
     }
 }
