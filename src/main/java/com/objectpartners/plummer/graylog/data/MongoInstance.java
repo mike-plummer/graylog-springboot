@@ -1,4 +1,4 @@
-package com.objectpartners.plummer.stockmarket.data;
+package com.objectpartners.plummer.graylog.data;
 
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
@@ -33,11 +33,13 @@ public class MongoInstance implements DisposableBean {
 
     public MongoInstance() throws IOException, InterruptedException {
 
+        // Download Mongo artifacts into the project directory to ease cleanup
         IDownloadConfig downloadConfig = new DownloadConfigBuilder()
                 .defaultsForCommand(Command.MongoD)
                 .artifactStorePath(ARTIFACT_STORE_PATH)
                 .build();
 
+        // Extract Mongo artifacts into the project directory to ease cleanup
         IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
                 .defaults(Command.MongoD)
                 .artifactStore(new ExtractedArtifactStoreBuilder()
@@ -47,6 +49,7 @@ public class MongoInstance implements DisposableBean {
                 )
                 .build();
 
+        // Store Mongo data into the project directory to ease cleanup
         Storage replication = new Storage("./data/mongodb/data", null, 0);
 
         MongodStarter starter = MongodStarter.getInstance(runtimeConfig);

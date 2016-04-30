@@ -1,6 +1,6 @@
-package com.objectpartners.plummer.stockmarket.graylog;
+package com.objectpartners.plummer.graylog.graylog;
 
-import com.objectpartners.plummer.stockmarket.data.MongoInstance;
+import com.objectpartners.plummer.graylog.data.MongoInstance;
 import io.airlift.airline.Cli;
 import org.graylog2.bootstrap.CliCommand;
 import org.graylog2.bootstrap.CliCommandsProvider;
@@ -8,6 +8,7 @@ import org.graylog2.bootstrap.commands.Help;
 import org.graylog2.bootstrap.commands.ShowVersion;
 import org.graylog2.inputs.gelf.http.GELFHttpInput;
 import org.graylog2.inputs.gelf.udp.GELFUDPInput;
+import org.graylog2.plugin.inputs.MessageInput;
 import org.graylog2.rest.models.dashboards.requests.AddWidgetRequest;
 import org.graylog2.rest.models.dashboards.requests.CreateDashboardRequest;
 import org.graylog2.rest.models.system.inputs.extractors.requests.CreateExtractorRequest;
@@ -15,13 +16,17 @@ import org.graylog2.rest.models.system.inputs.requests.InputCreateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.DecoratingClassLoader;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.*;
 
 @Named
@@ -61,6 +66,27 @@ public class GraylogInstance {
         final Runnable command = cli.parse("server", "-f", graylogConfigFile);
         final Thread graylogThread = new Thread(command);
 
+        /*
+        This is a nasty workaround to get Graylog's Swagger instance working when embedded within SpringBoot.
+        DocumentationBrowserResource uses the SystemClassLoader (which it 100% should not be doing) which means
+        it fails to load resources when run in an environment like SpringBoot
+         */
+        try {
+            Field sclField = ReflectionUtils.findField(ClassLoader.class, "scl");
+            ReflectionUtils.makeAccessible(sclField);
+            ReflectionUtils.setField(sclField, null, new DecoratingClassLoader() {
+                @Override
+                public URL getResource(String name) {
+                    if (name.startsWith("swagger/")) {
+                        return Thread.currentThread().getContextClassLoader().getResource(name);
+                    }
+                    return super.getResource(name);
+                }
+            });
+        } catch(Exception e) {
+            LOGGER.error("Failed to replace SystemClassLoader, this means Graylog's Swagger won't work.", e);
+        }
+
         graylogThread.start();
 
         LOGGER.info("Graylog started");
@@ -94,20 +120,7 @@ public class GraylogInstance {
             LOGGER.info("Graylog UDP input already exists, skipping...");
             return;
         }
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("use_null_delimiter", true);
-        properties.put("bind_address", "0.0.0.0");
-        properties.put("port", 12201);
-
-        InputCreateRequest request = InputCreateRequest.create(
-                inputName,
-                GELFUDPInput.class.getName(),
-                true,
-                properties,
-                null);
-
-        graylogRestInterface.createInput(request);
-        LOGGER.info("Graylog UDP input created.");
+        setupInput(inputName, GELFUDPInput.class, 12201);
     }
 
     private void setupHttpInput() {
@@ -116,20 +129,7 @@ public class GraylogInstance {
             LOGGER.info("Graylog HTTP input already exists, skipping...");
             return;
         }
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("use_null_delimiter", true);
-        properties.put("bind_address", "0.0.0.0");
-        properties.put("port", 12202);
-
-        InputCreateRequest request = InputCreateRequest.create(
-                inputName,
-                GELFHttpInput.class.getName(),
-                true,
-                properties,
-                null);
-
-        String inputId = graylogRestInterface.createInput(request);
-        LOGGER.info("Graylog HTTP input created.");
+        String inputId = setupInput(inputName, GELFHttpInput.class, 12202);
 
         Map<String, Object> extractorConfig = new HashMap<>();
         extractorConfig.put("key_separator", "_");
@@ -151,6 +151,24 @@ public class GraylogInstance {
         LOGGER.info("Graylog JSON extractor created.");
     }
 
+    private String setupInput(String name, Class<? extends MessageInput> inputType, int port) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("use_null_delimiter", true);
+        properties.put("bind_address", "0.0.0.0");
+        properties.put("port", port);
+
+        InputCreateRequest request = InputCreateRequest.create(
+                name,
+                inputType.getName(),
+                true,
+                properties,
+                null);
+
+        String inputId = graylogRestInterface.createInput(request);
+        LOGGER.info(String.format("%s input created.", name));
+        return inputId;
+    }
+
     private void setupDashboard() {
         String dashboardName = "Stock Market";
         if (graylogRestInterface.dashboardExists(dashboardName)) {
@@ -165,15 +183,17 @@ public class GraylogInstance {
         String dashboardId = graylogRestInterface.createDashboard(dashboardRequest);
         LOGGER.info("Graylog dashboard created.");
 
+        Map<String, Object> timerangeMap = new HashMap<String, Object>() {{
+            put("type", "relative");
+            put("range", 300);
+        }};
+
         AddWidgetRequest widgetRequest = AddWidgetRequest.create(
                 "Stock Quotes - Symbols",
                 "QUICKVALUES",
                 10,
                 new HashMap<String, Object>(){{
-                        put("timerange", new HashMap<String, Object>() {{
-                            put("type", "relative");
-                            put("range", 300);
-                        }});
+                        put("timerange", timerangeMap);
                         put("field", "symbol");
                         put("show_pie_chart", true);
                         put("query", "");
@@ -188,10 +208,7 @@ public class GraylogInstance {
                 "SEARCH_RESULT_COUNT",
                 10,
                 new HashMap<String, Object>(){{
-                    put("timerange", new HashMap<String, Object>() {{
-                        put("type", "relative");
-                        put("range", 300);
-                    }});
+                    put("timerange", timerangeMap);
                     put("lower_is_better", false);
                     put("trend", false);
                     put("query", "_exists_:symbol");

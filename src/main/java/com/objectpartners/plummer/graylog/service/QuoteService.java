@@ -1,7 +1,7 @@
-package com.objectpartners.plummer.stockmarket.service;
+package com.objectpartners.plummer.graylog.service;
 
-import com.objectpartners.plummer.stockmarket.domain.Exchange;
-import com.objectpartners.plummer.stockmarket.domain.QuoteResource;
+import com.objectpartners.plummer.graylog.domain.Exchange;
+import com.objectpartners.plummer.graylog.domain.QuoteResource;
 import org.apache.commons.lang3.RandomUtils;
 
 import javax.inject.Named;

@@ -1,6 +1,6 @@
-package com.objectpartners.plummer.stockmarket;
+package com.objectpartners.plummer.graylog;
 
-import com.objectpartners.plummer.stockmarket.config.*;
+import com.objectpartners.plummer.graylog.config.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Import;
         SwaggerConfiguration.class,
         WebMvcConfiguration.class
 })
-@ComponentScan("com.objectpartners.plummer.stockmarket")
+@ComponentScan("com.objectpartners.plummer.graylog")
 public class Application {
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 

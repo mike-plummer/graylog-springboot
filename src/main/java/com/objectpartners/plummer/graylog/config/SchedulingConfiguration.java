@@ -1,4 +1,4 @@
-package com.objectpartners.plummer.stockmarket.config;
+package com.objectpartners.plummer.graylog.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

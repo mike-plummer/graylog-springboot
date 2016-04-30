@@ -1,4 +1,4 @@
-package com.objectpartners.plummer.stockmarket.graylog;
+package com.objectpartners.plummer.graylog.graylog;
 
 import com.google.common.collect.Lists;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -30,11 +30,7 @@ public class GraylogRestInterface {
     private final UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance()
             .scheme("http").host("localhost").port(12900);
 
-    private final RestTemplate restTemplate;
-
-    public GraylogRestInterface() {
-        restTemplate = new RestTemplate();
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public String createInput(InputCreateRequest request) {
         HttpEntity<InputCreateRequest> entity = new HttpEntity<>(request, buildHeaders());
@@ -77,6 +73,11 @@ public class GraylogRestInterface {
         restTemplate.postForEntity(uriBuilder.cloneBuilder().path("dashboards/"+dashboardId+"/widgets").toUriString(), entity, null);
     }
 
+    /**
+     * Graylog rest services require authentication - construct an HTTP BASIC Auth header and attach to all outgoing requests
+     * Also tell service that JSON is outgoing and is requested for incoming data
+     * @return headers
+     */
     private HttpHeaders buildHeaders() {
         String auth = graylogUsername + ":" + graylogPassword;
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.US_ASCII) );

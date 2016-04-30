@@ -1,4 +1,4 @@
-package com.objectpartners.plummer.stockmarket.config;
+package com.objectpartners.plummer.graylog.config;
 
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +37,7 @@ public class SwaggerConfiguration {
                 .groupName("stockmarket")
                 .apiInfo(apiInfo())
                 .select()
-                .apis(basePackage("com.objectpartners.plummer.stockmarket"))
+                .apis(basePackage("com.objectpartners.plummer.graylog"))
                 .build();
     }
 

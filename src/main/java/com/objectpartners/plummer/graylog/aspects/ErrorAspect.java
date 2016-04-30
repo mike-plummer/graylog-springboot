@@ -1,7 +1,7 @@
-package com.objectpartners.plummer.stockmarket.jobs;
+package com.objectpartners.plummer.graylog.aspects;
 
-import com.objectpartners.plummer.stockmarket.graylog.GelfMessage;
-import com.objectpartners.plummer.stockmarket.graylog.GraylogRestInterface;
+import com.objectpartners.plummer.graylog.graylog.GelfMessage;
+import com.objectpartners.plummer.graylog.graylog.GraylogRestInterface;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 
@@ -18,8 +18,8 @@ public class ErrorAspect {
     @Inject
     protected GraylogRestInterface graylog;
 
-    @AfterThrowing(pointcut = "execution(* com.objectpartners.plummer.stockmarket.jobs..*(..))", throwing = "e")
-    public void errorThrown(Throwable e) {
+    @AfterThrowing(pointcut = "execution(* com.objectpartners.plummer.graylog.jobs..*(..))", throwing = "e")
+    public void errorThrown(Throwable e) throws IOException {
         GelfMessage message = new GelfMessage();
         message.setShortMessage("Error");
         message.setFullMessage(e.getMessage());
@@ -28,7 +28,7 @@ public class ErrorAspect {
              PrintWriter printWriter = new PrintWriter(stringWriter)) {
             e.printStackTrace(printWriter);
             message.getAdditionalProperties().put("stacktrace", stringWriter.toString());
-        } catch (IOException ioe) {}
+        }
 
         graylog.logEvent(message);
     }

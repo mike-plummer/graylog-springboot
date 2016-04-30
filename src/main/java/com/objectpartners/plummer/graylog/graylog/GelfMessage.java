@@ -1,4 +1,4 @@
-package com.objectpartners.plummer.stockmarket.graylog;
+package com.objectpartners.plummer.graylog.graylog;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,6 +15,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * Class that will serialize into JSON compliant the GELF format. This version is a bit easier to use than the built-in
+ * versions in Graylog.
+ */
 @Data
 public class GelfMessage {
 

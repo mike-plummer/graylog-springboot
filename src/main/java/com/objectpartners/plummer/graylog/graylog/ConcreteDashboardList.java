@@ -1,4 +1,4 @@
-package com.objectpartners.plummer.stockmarket.graylog;
+package com.objectpartners.plummer.graylog.graylog;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Graylog rest classes don't supply a DashboardList implementation that can be easily used with Jackson deserialization.
+ * Create one here to make it easier to pull and deserialize JSON from Graylog rest services.
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)

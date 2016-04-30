@@ -1,7 +1,7 @@
-package com.objectpartners.plummer.stockmarket.controller;
+package com.objectpartners.plummer.graylog.controller;
 
-import com.objectpartners.plummer.stockmarket.domain.QuoteResource;
-import com.objectpartners.plummer.stockmarket.service.QuoteService;
+import com.objectpartners.plummer.graylog.domain.QuoteResource;
+import com.objectpartners.plummer.graylog.service.QuoteService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 
-import static com.objectpartners.plummer.stockmarket.controller.StockController.RESOURCE_ROOT_URL;
+import static com.objectpartners.plummer.graylog.controller.QuotesController.RESOURCE_ROOT_URL;
 
 @RestController
 @RequestMapping(RESOURCE_ROOT_URL)
 @Api(value = "stocks", tags = "Stocks")
-public class StockController {
+public class QuotesController {
 
-    public static final String RESOURCE_ROOT_URL = "/stocks";
+    public static final String RESOURCE_ROOT_URL = "/quotes";
 
     @Inject
     protected QuoteService quoteService;
@@ -32,7 +32,8 @@ public class StockController {
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
-            @ApiResponse(code = 500, message = "Failure")})
+            @ApiResponse(code = 500, message = "Failure")
+    })
     public QuoteResource getQuote(@PathVariable("symbol") String symbol) {
         return quoteService.quote(symbol);
     }

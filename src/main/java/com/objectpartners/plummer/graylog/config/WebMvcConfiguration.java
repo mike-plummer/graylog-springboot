@@ -1,4 +1,4 @@
-package com.objectpartners.plummer.stockmarket.config;
+package com.objectpartners.plummer.graylog.config;
 
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.datatype.joda.cfg.JacksonJodaDateFormat;
