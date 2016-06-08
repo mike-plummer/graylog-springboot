@@ -1,6 +1,8 @@
 # graylog-springboot
 Example of using Graylog with Spring Boot
 
+Check out my [blog post](https://objectpartners.com/2016/05/04/graylog-with-spring-boot-open-source-log-and-event-analysis/) describing the goals and process (and compromises) behind this code.
+
 ## Infrastructure
 Graylog uses MongoDB and ElasticSearch behind the scenes. To make this example as simple as possible I've configured the SpringBoot application to fire up embedded versions of both of these. I highly recommend not using this setup in a Production environment.
 
