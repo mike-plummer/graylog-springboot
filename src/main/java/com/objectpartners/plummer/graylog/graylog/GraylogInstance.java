@@ -1,10 +1,11 @@
 package com.objectpartners.plummer.graylog.graylog;
 
+import com.github.rvesse.airline.Cli;
+import com.github.rvesse.airline.builder.CliBuilder;
 import com.objectpartners.plummer.graylog.data.MongoInstance;
-import io.airlift.airline.Cli;
 import org.graylog2.bootstrap.CliCommand;
 import org.graylog2.bootstrap.CliCommandsProvider;
-import org.graylog2.bootstrap.commands.Help;
+import org.graylog2.bootstrap.commands.CliCommandHelp;
 import org.graylog2.bootstrap.commands.ShowVersion;
 import org.graylog2.inputs.gelf.http.GELFHttpInput;
 import org.graylog2.inputs.gelf.udp.GELFUDPInput;
@@ -51,9 +52,9 @@ public class GraylogInstance {
     @PostConstruct
     public void init() throws IOException, InterruptedException {
         System.setProperty("java.library.path", "./sigar-libs");
-        final Cli.CliBuilder<CliCommand> builder = Cli.<CliCommand>builder("graylog")
-                .withDefaultCommand(Help.class)
-                .withCommands(Help.class, ShowVersion.class);
+        final CliBuilder<CliCommand> builder = Cli.<CliCommand>builder("graylog")
+                .withDefaultCommand(CliCommandHelp.class)
+                .withCommands(CliCommandHelp.class, ShowVersion.class);
 
         ServiceLoader commandsProviders = ServiceLoader.load(CliCommandsProvider.class);
 
@@ -63,7 +64,7 @@ public class GraylogInstance {
         }
 
         final Cli<CliCommand> cli = builder.build();
-        final Runnable command = cli.parse("server", "-f", graylogConfigFile);
+        final Runnable command = cli.parse("server", "-f", graylogConfigFile, "-np");
         final Thread graylogThread = new Thread(command);
 
         /*

@@ -3,5 +3,5 @@
 *.iml
 /build
 /data
-/sigar-libs/*
+/sigar-libs
 /target

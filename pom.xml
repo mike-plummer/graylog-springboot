@@ -13,35 +13,23 @@
     <url>https://github.com/mike-plummer/graylog-springboot</url>
 
     <properties>
-        <commons-lang3.version>3.4</commons-lang3.version>
-        <embedded-mongo.version>1.50.2</embedded-mongo.version>
-        <graylog.version>2.0.0</graylog.version>
+        <commons-lang3.version>3.6</commons-lang3.version>
+        <embedded-mongo.version>2.0.0</embedded-mongo.version>
+        <graylog.version>2.3.1</graylog.version>
+        <guava.version>21.0</guava.version>
         <javax-inject.version>1</javax-inject.version>
         <java.version>1.8</java.version>
-        <logback-gelf.version>1.1.8</logback-gelf.version>
-        <lombok.version>1.16.8</lombok.version>
-        <springfox.version>2.4.0</springfox.version>
+        <logback-gelf.version>1.1.11</logback-gelf.version>
+        <lombok.version>1.16.18</lombok.version>
+        <spring.boot.version>1.5.7.RELEASE</spring.boot.version>
+        <springfox.version>2.7.0</springfox.version>
         <truezip.version>1.2</truezip.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>spring-snapshots</id>
-            <url>http://repo.spring.io/milestone/</url>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-milestones</id>
-            <url>http://repo.spring.io/milestone</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.4.0.M2</version>
+        <version>1.5.7.RELEASE</version>
     </parent>
 
     <build>
@@ -54,7 +42,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.4.0.M2</version>
+                <version>1.5.7.RELEASE</version>
                 <executions>
                     <execution>
                         <goals>
@@ -164,6 +152,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
     </dependencies>
 

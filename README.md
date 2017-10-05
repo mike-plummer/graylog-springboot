@@ -43,11 +43,11 @@ If you're interested in tweaking the application's config you can look in three 
 ## Versions
 You'll need versions of Java and Maven available. I've tested with the specified versions.
 
-Java: 1.8.0_74
+Java: 1.8.0_131
 
-Maven: 3.3.9
+Maven: 3.5.0
 
-Application has been verified on OSX 10.11.4 and Ubuntu 15.10. Your mileage may vary on other operating systems.
+Application has been verified on OSX 10.13.0. Your mileage may vary on other operating systems.
 
 ## License
 This code is provided under the terms of the MIT license: basically you're free to do whatever you want with it, but no guarantees are made to its validity, stability, or safety. All works referenced by or utilized by this project are the property of their respective copyright holders and retain licensing that may be more restrictive.
